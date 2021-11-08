@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Inmersion</title>
+</head>
+<body>
+    <h1>Results for {{ word }}</h1>
+    {% for entry in data %}
+    <h3>{{ entry['lexicalCategory'] }}</h3>
+    <ul>
+        {% for i in range (0, entry['senseInformation']['definitions']|length) %}
+            <li> {{ entry['senseInformation']['definitions'][i] }} </li>
+            {% for example in entry['senseInformation']['examples'][i] %}
+                {% if example != 'None' %}
+                    <p><i>{{ example }}</i></p>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </ul>
+
+    {% endfor %}
+    
+</body>
+</html>
