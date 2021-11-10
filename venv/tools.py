@@ -8,13 +8,13 @@ app_key = os.getenv('app_key')
 # function to get only the api data needed to the MVP - lexical category, definitions, examples
 def api_data(word):
     # Use the entries and en-us language as default
-    base_entries_url = "https://od-api.oxforddictionaries.com/api/v2/entries/en-us/"
+    baseEntriesURL = "https://od-api.oxforddictionaries.com/api/v2/entries/en-us/"
     # Now, we add the word searched by the user
-    entries_url = base_entries_url + word.lower()
+    entriesURL = baseEntriesURL + word.lower()
 
     try:
         # Making the request
-        r = requests.get(entries_url, headers={"app_id": app_id, "app_key": app_key})
+        r = requests.get(entriesURL, headers={"app_id": app_id, "app_key": app_key})
         if r.status_code == 200:
             # Turning response into json format
             response = r.json()
@@ -74,3 +74,39 @@ def api_data(word):
         print(error)
 
 
+# this function return a dictionary with the different lemmas of the word searched
+def get_lemmas(word):
+    # Use the lemmas and en-us language as default
+    baseLemmasURL = "https://od-api.oxforddictionaries.com/api/v2/lemmas/en-us/"
+    # Now, we add the word searched by the user
+    lemasURL = baseLemmasURL + word.lower()
+    # It is possible something goes wrong when we make the requests, so we should handle the error
+    try:
+        r = requests.get(lemasURL, headers={'app_id': app_id, 'app_key': app_key})
+    except AssertionError as error:
+        return error
+    
+    if r.status_code == 200:
+        response = r.json()
+        # accessing to lexical entries, when the relevant information is
+        lexicalEntries = response['results'][0]['lexicalEntries']
+        # We will save each lemma and its lexical category in a dictionary
+        # It is not necessary to save the inflection because it's always the word searched
+        inflections = []
+        for inflect in lexicalEntries:
+            inflection = {
+                'lemma': None,
+                'lexicalCategory': None,
+            }
+            inflection['lemma'] = inflect['inflectionOf'][0]['text']
+            inflection['lexicalCategory'] = inflect['lexicalCategory']['text']
+            
+            # Save the lemma in the inflections dictionary
+            inflections.append(inflection)
+        
+        return inflections
+    else:
+        # When the API doesn't return lemmas because the word typed doesn't exist, we return the error
+        # of the api
+        response = r.json()
+        return response['error']

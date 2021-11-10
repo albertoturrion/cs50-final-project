@@ -22,6 +22,14 @@
     </ul>
 
     {% endfor %}
+
+    {% for lemma in lemmas %}
+    <!-- Only showing the words if the lemma is different to the word searched -->
+        {% if lemma['lemma'] != word %}
+            <p>{{ lemma['lemma'] }}</p>
+            <p>{{ lemma['lexicalCategory'] }}</p>
+        {% endif %}
+    {% endfor %}
     
 </body>
 </html>

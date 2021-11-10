@@ -1,26 +1,31 @@
 import json
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, flash
 import requests
 import os
-from tools import api_data
+from tools import api_data, get_lemmas
 
 
 app = Flask(__name__)
 
 app_id = os.environ['app_id']
 app_key = os.environ['app_key']
-# print(app_id)
-# print(app_key)
+
+app.secret_key = "myapp"
+
 
 @app.route("/", methods=['GET', 'POST'])
-def hello_world():
+def index():
     if request.method == 'GET':
         return render_template('hello.html')
     else:
         try:
             word = request.form['word']
             data = api_data(word)
-            return render_template('results.html', word=word, data=data)
+            lemmas = get_lemmas(word)
+            if not isinstance(lemmas, list):
+                flash(lemmas)
+                return redirect("/")
+            return render_template('results.html', word=word, data=data, lemmas=lemmas)
         except AssertionError as error:
             return(f"{error}")
     
