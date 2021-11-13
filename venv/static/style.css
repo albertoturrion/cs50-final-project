@@ -1,0 +1,147 @@
+:root {
+    --primary-color: #191F75;
+    --secondary-color: #C8B400;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* text-styles */
+
+h1 {
+    font-size: 1.5rem !important;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 12px;
+    font-size: 1.4rem !important;
+    font-weight: 500;
+    color: var(--primary-color)
+}
+
+p, li {
+    font-size: 1.125rem;
+    line-height: 1.7;
+}
+
+nav {
+    background-color: var(--primary-color);
+}
+
+p.flash {
+    padding: 8px 10px;
+    text-align: center;
+}
+
+.flash.info {
+    background-color: #ffe38f;
+}
+
+/* Home Page */
+
+.home-hero {
+    height: 70vh;
+    padding: 8px 0;
+    background-image: url("../static/images/big-city.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    text-align: center;
+    position: relative;
+}
+
+.hero-container {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-content: space-around;
+}
+
+.home-hero::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgb(5 8 38 / 60%)
+}
+
+.home-hero h1 {
+    position: relative;
+    color: white;
+}
+
+.home-hero p{
+    position: relative;
+    color: white;
+}
+
+.home-hero p span {
+    display: block;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.what-is {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.button {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    margin: 8px 0;
+    border: none;
+    border-radius: 8px;
+    filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+    font-size: 1.3rem;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn-gold {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-white {
+    background-color: white;
+    color: var(--primary-color);
+}
+
+.why {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background-color: #fafafa;
+}
+
+.motivation {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.motivation-phrase {
+    color: var(--primary-color);
+    font-style: italic;
+}
+
+footer {
+    padding: 12px 0;
+    text-align: center;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+footer p {
+    font-size: 1rem;
+    margin: 0;
+}
