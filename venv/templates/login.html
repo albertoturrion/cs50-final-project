@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block title %} Login {% endblock %}
+
+{% block body %}
+
+<section class="login-section container">
+    <h1>Login and continue with your progress!</h1>
+    <!-- <p></p> -->
+    <form action="/login" method="POST">
+        <input type="email" name="email" placeholder="Email address" class="form-control">
+        <input type="password" name="password" placeholder="Password" class="form-control">
+        <input type="submit" value="LOGIN" class="button button-small btn-gold">
+        <a href="#" class="form-link">Did you forget your password?</a>
+    </form>
+    <p class="or-option">OR</p>
+    <a href="#" class="button button-small btn-white">CREATE AN ACCOUNT</a>
+
+</section>
+
+{% endblock %}

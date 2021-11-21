@@ -1,0 +1,4 @@
+nav .navbar-nav a.button.btn-white[href="/login"],
+nav .navbar-nav a.button.btn-white[href="/sign-up"] {
+    width: auto;
+}

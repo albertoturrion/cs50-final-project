@@ -9,6 +9,12 @@
     padding: 0;
 }
 
+/* Changing Bootstrap container */
+.container {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
 /* text-styles */
 
 h1 {
@@ -30,6 +36,13 @@ p, li {
 
 nav {
     background-color: var(--primary-color);
+    text-align: center;
+}
+
+nav .navbar-nav a.button.btn-white[href="/login"],
+nav .navbar-nav a.button.btn-white[href="/sign-up"] {
+    color: var(--primary-color);
+    font-size: 1.125rem;
 }
 
 p.flash {
@@ -90,11 +103,6 @@ p.flash {
     font-weight: bold;
 }
 
-.what-is {
-    padding-top: 20px;
-    padding-bottom: 20px;
-}
-
 .button {
     display: block;
     width: 100%;
@@ -108,6 +116,11 @@ p.flash {
     text-decoration: none;
 }
 
+.button.button-small {
+    padding: 6px;
+    font-size: 1.125rem;
+}
+
 .btn-gold {
     background-color: var(--secondary-color);
     color: white;
@@ -119,8 +132,8 @@ p.flash {
 }
 
 .why {
-    padding-top: 20px;
-    padding-bottom: 20px;
+    /* padding-top: 20px;
+    padding-bottom: 20px; */
     background-color: #fafafa;
 }
 
@@ -135,7 +148,6 @@ p.flash {
 }
 
 footer {
-    padding: 12px 0;
     text-align: center;
     background-color: var(--primary-color);
     color: white;
@@ -144,4 +156,40 @@ footer {
 footer p {
     font-size: 1rem;
     margin: 0;
+}
+
+/* LOGIN page */
+
+.login-section input[type="email"] {
+    margin-bottom: 8px;
+}
+
+.login-section .form-link {
+    display: block;
+    margin-bottom: 8px;
+    text-align: right;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.or-option {
+    margin: 30px 0;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.register-section .form-link {
+    display: block;
+    margin: 20px 0;
+    text-align: center;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.register-section input {
+    margin-bottom: 8px;
+}
+
+.register-section input:last-of-type {
+    margin-bottom: none;
 }
