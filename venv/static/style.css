@@ -7,6 +7,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-family: 'Roboto', sans-serif;
 }
 
 /* Changing Bootstrap container */
@@ -19,14 +20,24 @@
 
 h1 {
     font-size: 1.5rem !important;
+    font-family: 'Montserrat', sans-serif;
 }
 
 h2 {
+    font-family: 'Montserrat', sans-serif;
     text-align: center;
     margin-bottom: 12px;
     font-size: 1.4rem !important;
     font-weight: 500;
     color: var(--primary-color)
+}
+
+h3 {
+    font-family: 'Montserrat', sans-serif;
+    text-align: left;
+    margin: 10px 0;
+    font-size: 1.2rem !important;
+    font-weight: 400;
 }
 
 p, li {
@@ -39,15 +50,31 @@ nav {
     text-align: center;
 }
 
+nav div.logout p {
+    color: white;
+    margin: 10px 0;
+}
+
 nav .navbar-nav a.button.btn-white[href="/login"],
-nav .navbar-nav a.button.btn-white[href="/sign-up"] {
+nav .navbar-nav a.button.btn-white[href="/sign-up"],
+nav .navbar-nav a.button.btn-white[href="/logout"] {
     color: var(--primary-color);
     font-size: 1.125rem;
+}
+
+.search-logout {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.logout {
+    margin-bottom: 8px;
 }
 
 p.flash {
     padding: 8px 10px;
     text-align: center;
+    margin-bottom: unset;
 }
 
 .flash.info {
@@ -192,4 +219,81 @@ footer p {
 
 .register-section input:last-of-type {
     margin-bottom: none;
+}
+
+/* Results page */
+
+.results h1{
+    letter-spacing: 1.1;
+}
+
+.results h1 span {
+    color: var(--secondary-color);
+}
+
+h3.results_lexical-entry span {
+    font-weight: bold;
+    font-size: 0.9rem;
+    letter-spacing: 1.1px;
+    font-style: italic;
+}
+
+h3.results_lexical-entry::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 1px;
+    margin-top: 5px;
+    background-color: var(--secondary-color);
+}
+
+.results.material-icons-outlined {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+    color: var(--primary-color);
+}
+
+li.results_example {
+    font-size: 1.1rem;
+}
+
+span.division {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 1px;
+    margin: 5px 0 10px 0;
+    background-color: #e7e7e7;
+}
+
+span.division:last-of-type {
+    display: none;
+}
+
+.results_lemmas {
+    display: flex;
+    min-width: 200px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 8px;
+    background-color: #ffe38f;
+}
+
+.results_lemmas h3 {
+    text-align: center;
+}
+
+.results_lemmas h3 a {
+    display: block;
+    margin-top: 5px;
+    text-decoration: none;
+    color: var(--primary-color);
+} 
+
+.results_lemmas h3 a span {
+    font-size: 1rem;
+    font-style: italic;
+    letter-spacing: 1.1px;
 }

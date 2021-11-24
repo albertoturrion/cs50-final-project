@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+import re
 
 app_id = os.getenv('app_id')
 app_key = os.getenv('app_key')
@@ -110,3 +111,18 @@ def get_lemmas(word):
         # of the api
         response = r.json()
         return response['error']
+
+
+def check_email(email):
+    regular_expression = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    return re.fullmatch(regular_expression, email)
+
+
+# https://flask.palletsprojects.com/en/1.1.x/patterns/viewdecorators/
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.user is None:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function

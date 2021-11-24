@@ -4,28 +4,40 @@
 
 
 {% block body %} 
-    <h1>Results for {{ word }}</h1>
-    {% for entry in data %}
-    <h3>{{ entry['lexicalCategory'] }}</h3>
-    <ul>
-        {% for i in range (0, entry['senseInformation']['definitions']|length) %}
-            <li> {{ entry['senseInformation']['definitions'][i] }} </li>
-            {% for example in entry['senseInformation']['examples'][i] %}
-                {% if example != 'None' %}
-                    <p><i>{{ example }}</i></p>
-                {% endif %}
+    <section class="results container">
+        <h1>Results for <span>{{ word }}</span></h1>
+        {% for entry in data %}
+        {% set outer_loop = loop %}
+        <h3 class="results_lexical-entry">{{ word }} <span>({{ entry['lexicalCategory'] }})</span></h3>
+        <!-- <ul> -->
+            {% for i in range (0, entry['senseInformation']['definitions']|length) %}
+                <p id="definition-{{ outer_loop.index0 }}-{{ i }}"><span class="results material-icons-outlined {{ outer_loop.index0 }}-{{ i }}">bookmark_add</span>{{ entry['senseInformation']['definitions'][i] }} </p>
+                {% for example in entry['senseInformation']['examples'][i] %}
+                    {% if example != 'None' %}
+                    <ul>
+                        <li id="example-{{ outer_loop.index0 }}-{{ i }}" class="results_example"><i>{{ example }}</i></li>
+                    </ul>
+                    {% endif %}
+                {% endfor %}
+                <span class="division"></span>
             {% endfor %}
+        <!-- </ul> -->
         {% endfor %}
-    </ul>
-
-    {% endfor %}
-
-    {% for lemma in lemmas %}
-    <!-- Only showing the words if the lemma is different to the word searched -->
-        {% if lemma['lemma'] != word %}
-            <p>{{ lemma['lemma'] }}</p>
-            <p>{{ lemma['lexicalCategory'] }}</p>
-        {% endif %}
-    {% endfor %}
+        
+        <!-- It's important to show the lemma if doesn't match the word searched -->
+        {% for lemma in lemmas %}
+        <!-- Only showing the words if the lemma is different to the word searched -->
+            {% if lemma['lemma'] != word %}
+            <div class="callout results_lemmas">
+                <h3>It is possible you are also interested on 
+                    <a href="">{{ lemma['lemma']|title }}
+                        <span>- {{ lemma['lexicalCategory'] }} -</span>
+                    </a>
+                </h3>
+            </div>
+            {% endif %}
+        {% endfor %}
+        </section>
 
 {% endblock %}
+

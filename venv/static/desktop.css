@@ -2,3 +2,18 @@ nav .navbar-nav a.button.btn-white[href="/login"],
 nav .navbar-nav a.button.btn-white[href="/sign-up"] {
     width: auto;
 }
+
+.search-logout {
+    display: flex;
+    flex-direction: row;
+    max-height: 50px;
+}
+
+.logout {
+    display: flex;
+    margin-bottom: unset;
+}
+
+.logout p{
+    display: inline-block;
+}
