@@ -19,17 +19,6 @@ def create_tables(cur):
     )
 
     cur.execute(
-        '''CREATE TABLE IF NOT EXISTS users_words (
-            users_words_id INTEGER,
-            user_id INTEGER,
-            word_id INTEGER,
-            PRIMARY KEY(users_words_id, user_id, word_id),
-            FOREIGN KEY(user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-            FOREIGN KEY(word_id) REFERENCES words(word_id) ON DELETE CASCADE
-        )'''
-    )
-
-    cur.execute(
         ''' CREATE TABLE IF NOT EXISTS lexical_category (
             category_id INTEGER PRIMARY KEY,
             category TEXT
@@ -39,10 +28,9 @@ def create_tables(cur):
 
     cur.execute(
         ''' CREATE TABLE IF NOT EXISTS words_lexical_category (
-            words_lexical_category_id INTEGER,
             word_id INTEGER,
             category_id INTEGER,
-            PRIMARY KEY(words_lexical_category_id, word_id, category_id),
+            PRIMARY KEY(word_id, category_id),
             FOREIGN KEY(word_id) REFERENCES words(word_id),
             FOREIGN KEY(category_id) REFERENCES lexical_category(category_id)
         )
@@ -64,6 +52,16 @@ def create_tables(cur):
     )
 
     cur.execute(
+        '''CREATE TABLE IF NOT EXISTS users_definitions (
+            user_id INTEGER,
+            definition_id INTEGER,
+            FOREIGN KEY(user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+            FOREIGN KEY(definition_id) REFERENCES definitions(definition_id) ON DELETE CASCADE
+        )'''
+    )
+
+
+    cur.execute(
         ''' CREATE TABLE IF NOT EXISTS examples (
             example_id INTEGER PRIMARY KEY,
             definition_id INTEGER,
@@ -77,7 +75,7 @@ def create_tables(cur):
 def delete_tables(cur):
     cur.execute("DROP TABLE IF EXISTS users")
     cur.execute("DROP TABLE IF EXISTS words")
-    cur.execute("DROP TABLE IF EXISTS users_words")
+    cur.execute("DROP TABLE IF EXISTS users_definitions")
     cur.execute("DROP TABLE IF EXISTS lexical_category")
     cur.execute("DROP TABLE IF EXISTS words_lexical_category")
     cur.execute("DROP TABLE IF EXISTS words_lexical_category")
@@ -115,11 +113,11 @@ def seed_tables(cur):
         cur.execute("INSERT INTO words (word) VALUES (?)", (word_example,))
 
     # seed users_words
-    cur.execute("INSERT INTO users_words VALUES (?,?,?)", (1,1,1))
-    cur.execute("INSERT INTO users_words VALUES (?,?,?)", (1,1,2))
-    cur.execute("INSERT INTO users_words VALUES (?,?,?)", (1,1,4))
-    cur.execute("INSERT INTO users_words VALUES (?,?,?)", (1,2,3))
-    cur.execute("INSERT INTO users_words VALUES (?,?,?)", (1,2,4))
+    cur.execute("INSERT INTO users_definitions (user_id, definition_id) VALUES (?,?)", (1,1))
+    cur.execute("INSERT INTO users_definitions (user_id, definition_id) VALUES (?,?)", (1,2))
+    cur.execute("INSERT INTO users_definitions (user_id, definition_id) VALUES (?,?)", (1,4))
+    cur.execute("INSERT INTO users_definitions (user_id, definition_id) VALUES (?,?)", (2,3))
+    cur.execute("INSERT INTO users_definitions (user_id, definition_id) VALUES (?,?)", (2,4))
 
     # seed lexical_category table
     lexical_categories = ['noun', 'verb', 'conjunction', 'adjective','adverb']
@@ -131,7 +129,7 @@ def seed_tables(cur):
     cur.execute("INSERT INTO words_lexical_category(word_id, category_id) VALUES (?,?)", (1,2))
     cur.execute("INSERT INTO words_lexical_category(word_id, category_id) VALUES (?,?)", (2,1))
     cur.execute("INSERT INTO words_lexical_category(word_id, category_id) VALUES (?,?)", (2,2))
-    cur.execute("INSERT INTO words_lexical_category(word_id, category_id) VALUES (?,?)", (2,1))
+    cur.execute("INSERT INTO words_lexical_category(word_id, category_id) VALUES (?,?)", (3,1))
 
     # seed definitions table
 
@@ -149,6 +147,8 @@ def seed_tables(cur):
     cur.execute("INSERT INTO definitions (word_id, category_id, definition, date, learned) VALUES (?,?,?,?,?)", (2,2,"test (a person or substance) for the presence or absence of a disease or contaminant","2021-02-03","2021-02-18"))
     cur.execute("INSERT INTO definitions (word_id, category_id, definition, date, learned) VALUES (?,?,?,?,?)", (2,2,"pass (a substance such as grain or coal) through a large sieve or screen, especially so as to sort it into different sizes","2021-06-15","2021-06-18"))
     cur.execute("INSERT INTO definitions (word_id, category_id, definition, date, learned) VALUES (?,?,?,?,?)", (2,2,"project (a photograph or other image) through a transparent ruled plate so as to be able to reproduce it as a halftone.","2021-07-24", None))
+    cur.execute("INSERT INTO definitions (word_id, category_id, definition, date, learned) VALUES (?,?,?,?,?)", (3,1,"a system for transmitting visual images and sound that are reproduced on screens, chiefly used to broadcast programs for entertainment, information, and education","2021-03-20", None))
+    cur.execute("INSERT INTO definitions (word_id, category_id, definition, date, learned) VALUES (?,?,?,?,?)", (3,1,"a device that receives television signals and reproduces them on a screen.","2021-10-05", "2021-11-02"))
 
     # seed examples table
     cur.execute("INSERT INTO examples (definition_id, example) VALUES (?,?)", (1, "granted, sitting around the house may not be your idea of the perfect retirement, but what's your choice when inflation is eroding the value of your nest egg?"))

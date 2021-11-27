@@ -5,13 +5,13 @@
 
 {% block body %} 
     <section class="results container">
-        <h1>Results for <span>{{ word }}</span></h1>
+        <h1>Results for <span id="word">{{ word }}</span></h1>
         {% for entry in data %}
         {% set outer_loop = loop %}
-        <h3 class="results_lexical-entry">{{ word }} <span>({{ entry['lexicalCategory'] }})</span></h3>
+        <h3 class="results_lexical-entry">{{ word }} <span id="lexical_category-{{ outer_loop.index0 }}">({{ entry['lexicalCategory'] }})</span></h3>
         <!-- <ul> -->
             {% for i in range (0, entry['senseInformation']['definitions']|length) %}
-                <p id="definition-{{ outer_loop.index0 }}-{{ i }}"><span class="results material-icons-outlined {{ outer_loop.index0 }}-{{ i }}">bookmark_add</span>{{ entry['senseInformation']['definitions'][i] }} </p>
+                <p id="definition-{{ outer_loop.index0 }}-{{ i }}"><span id="{{ outer_loop.index0 }}-{{ i }}" class="results material-icons-outlined">bookmark_add</span>{{ entry['senseInformation']['definitions'][i] }} </p>
                 {% for example in entry['senseInformation']['examples'][i] %}
                     {% if example != 'None' %}
                     <ul>

@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, request, url_for, session
+from flask import Flask, flash, redirect, render_template, request, url_for, session, jsonify, make_response
 from flask_session import Session
 from tables import delete_tables, seed_tables, create_tables
 from tempfile import mkdtemp
@@ -37,16 +37,12 @@ con = sqlite3.connect('users.db')
 # creating a cursor to manipulate the model (database)
 cur = con.cursor()
 
-# delete_table = False
-# create_table = True
-# seed_table = True
+seeding = False
 
-
-delete_tables(cur)
-
-create_tables(cur)
-
-seed_tables(cur)
+if seeding == True:
+    delete_tables(cur)
+    create_tables(cur)
+    seed_tables(cur)
 
 # Saving changes on database
 con.commit()
@@ -57,6 +53,7 @@ con.close()
 @app.route("/", methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
+        user = session.get('user_id', 'not_found')
         return render_template('index.html')
     else:
         try:
@@ -167,3 +164,83 @@ def logout():
 @app.route("/navbar")
 def navbar():
     return render_template("navbar.html")
+
+
+@app.route("/save-word", methods=["POST"])
+def save_word():
+    req = request.get_json()
+    print(req)
+    if 'user_id' in session:
+        user = session.get('user_id')
+        print(user)
+    with sqlite3.connect('users.db') as con:
+        cur = con.cursor()
+        # checking if the definition already exists in the table (we don't need to check word and category, definitions are unique)
+        cur.execute("SELECT definition_id, definition FROM definitions WHERE definition=(?)", (req["definition"],))
+        
+            # '''SELECT name, word, category, definition 
+            # FROM definitions
+            # INNER JOIN users_definitions ON users_definitions.definition_id = definitions.definition_id
+            # INNER JOIN users ON  users.user_id = users_definitions.user_id
+            # INNER JOIN lexical_category ON lexical_category.category_id = definitions.category_id
+            # INNER JOIN words ON words.word_id = definitions.word_id
+            # WHERE word=(?) AND category=(?) AND definition=(?)''', (req['word'], req['lexical_category'], req['definition']))
+
+        definition = cur.fetchone()
+        # if the definition exists, we only should assign it to the user 
+        if definition != None:
+            cur.execute("INSERT INTO users_definitions(user_id, definition_id) VALUES (?,?)", (user, definition[0]))
+        # if not exists, we should create it and then assign it to the user 
+        else:
+            # if the word doesn't exists, we should create it and save it in the table
+            cur.execute("SELECT word FROM words WHERE word=(?)",(req["word"],))
+            word_exists = cur.fetchone()
+            if word_exists == None:
+                cur.execute('INSERT INTO words (word) VALUES (?)', (req['word'],))
+                new_word_id = cur.lastrowid
+                # # linking the new word to definitions table
+                # cur.execute("INSERT INTO definitions(word_id) VALUES (?)", (new_word_id,))
+            # We can save the word_id as a global variable to use it onwards
+            cur.execute("SELECT word_id FROM words WHERE word = (?)", (req["word"],))
+            word_id = cur.fetchone()[0]
+
+            # now we know we exists, so we should check if the lexical category chosen by the user is linked to this word, the user could
+            # add more than one categories for the same word (noun, verb...) 
+
+            # checking if the lexical category exist in the table
+            cur.execute("SELECT * FROM lexical_category WHERE category = (?)", (req['lexical_category'],))
+            category_exists = cur.fetchone()
+            if category_exists != None:
+                # checking if the word has this category linked to it
+                cur.execute("SELECT * FROM definitions WHERE word_id=(?) AND category_id=(?)", (word_id, category_exists[0]))
+                word_category_linked = cur.fetchone()
+                # if they are not linked (any result returned), we link it
+                if word_category_linked == None:
+                    cur.execute("INSERT INTO words_lexical_category(word_id, category_id) VALUES (?,?)", (word_id, category_exists[0]))
+                # in case they are linked, we should add the new definition and its examples to this word-category (screen-noun)
+                cur.execute("INSERT INTO definitions(word_id, category_id, definition) VALUES (?,?,?)",(word_id, category_exists[0], req["definition"],))
+                new_definition_id = cur.lastrowid
+                # inserting the examples related to the new definition
+                for example in req["examples"]:
+                    cur.execute("INSERT INTO examples (definition_id, example) VALUES (?,?)", (new_definition_id, example))
+                # finally, linking the new definition to the user
+                cur.execute("INSERT INTO users_definitions(user_id, definition_id) VALUES (?,?)", (user, new_definition_id))
+            
+            # if the category doesn't exist, we should save it first
+            else:
+                cur.execute('INSERT INTO lexical_category (category) VALUES (?)', (req['lexical_category'],))
+                new_category_id = cur.lastrowid
+                # linking the word to the new category
+                cur.execute("INSERT INTO words_lexical_category(word_id, category_id) VALUES (?,?)", (word_id, new_category_id))
+                # Now the new category is linked to the word, we should add the definition and the examples
+                cur.execute("INSERT INTO definitions(word_id, category_id, definition) VALUES (?,?,?)",(word_id, new_category_id, req["definition"],))
+                new_definition_id = cur.lastrowid
+                # inserting the examples related to the new definition
+                for example in req["examples"]:
+                    cur.execute("INSERT INTO examples (definition_id, example) VALUES (?,?)", (new_definition_id, example))
+                # finally, linking the new definition to the user
+                cur.execute("INSERT INTO users_definitions(user_id, definition_id) VALUES (?,?)", (user, new_definition_id))
+
+        con.commit()
+    response = make_response(jsonify({'message':'OK'}), 200)
+    return response
