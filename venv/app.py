@@ -2,7 +2,7 @@ from flask import Flask, flash, redirect, render_template, request, url_for, ses
 from flask_session import Session
 from tables import delete_tables, seed_tables, create_tables
 from tempfile import mkdtemp
-from tools import api_data, check_email, get_lemmas
+from tools import api_data, check_email, get_lemmas, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 import json
 import os
@@ -50,23 +50,11 @@ con.commit()
 con.close()
 
 
-@app.route("/", methods=['GET', 'POST'])
+@app.route("/", methods=['GET'])
 def index():
-    if request.method == 'GET':
-        user = session.get('user_id', 'not_found')
-        return render_template('index.html')
-    else:
-        try:
-            word = request.form['word']
-            data = api_data(word)
-            lemmas = get_lemmas(word)
-            if not isinstance(lemmas, list):
-                flash(lemmas)
-                return redirect(url_for("index"))
-            counter = 0
-            return render_template('results.html', word=word, data=data, lemmas=lemmas, counter = counter)
-        except AssertionError as error:
-            return(f"{error}")
+    user = session.get('user_id', 'not_found')
+    return render_template('index.html')
+        
 
 
 @app.route("/login", methods=['GET','POST'])
@@ -157,6 +145,7 @@ def register():
 
 
 @app.route("/logout")
+@login_required
 def logout():
     session.clear()
     return redirect(url_for("index"))
@@ -177,14 +166,6 @@ def save_word():
         cur = con.cursor()
         # checking if the definition already exists in the table (we don't need to check word and category, definitions are unique)
         cur.execute("SELECT definition_id, definition FROM definitions WHERE definition=(?)", (req["definition"],))
-        
-            # '''SELECT name, word, category, definition 
-            # FROM definitions
-            # INNER JOIN users_definitions ON users_definitions.definition_id = definitions.definition_id
-            # INNER JOIN users ON  users.user_id = users_definitions.user_id
-            # INNER JOIN lexical_category ON lexical_category.category_id = definitions.category_id
-            # INNER JOIN words ON words.word_id = definitions.word_id
-            # WHERE word=(?) AND category=(?) AND definition=(?)''', (req['word'], req['lexical_category'], req['definition']))
 
         definition = cur.fetchone()
         # if the definition exists, we only should assign it to the user 
@@ -244,3 +225,104 @@ def save_word():
         con.commit()
     response = make_response(jsonify({'message':'OK'}), 200)
     return response
+
+
+@app.route("/dictionary", methods=["GET"])
+def search_word():
+    try:
+        word = request.args.get('word')
+        data = api_data(word)
+        lemmas = get_lemmas(word)
+        if not isinstance(lemmas, list):
+            flash(lemmas)
+            return redirect(url_for("index"))
+        counter = 0
+        return render_template('results.html', word=word, data=data, lemmas=lemmas, counter = counter)
+    except AssertionError as error:
+        return(f"{error}")
+
+
+@app.route("/your-list", methods=["GET"])
+@login_required
+def your_list():
+    user_id = session.get("user_id", None)
+    # collecting every definitions saved for the user
+    with sqlite3.connect("users.db") as con:
+        cur = con.cursor()
+        # cur.execute(
+        #     '''SELECT word, category, definition, date, learned
+        #     FROM definitions
+        #     INNER JOIN users_definitions ON users_definitions.definition_id = definitions.definition_id
+        #     INNER JOIN users ON  users.user_id = users_definitions.user_id
+        #     INNER JOIN lexical_category ON lexical_category.category_id = definitions.category_id
+        #     INNER JOIN words ON words.word_id = definitions.word_id
+        #     WHERE users.user_id = (?)
+        #     ORDER BY learned DESC,  date DESC, words.word DESC''', (user_id,))
+
+
+        cur.execute(
+            '''SELECT name, definitions.definition_id, word, category, definition , example, date, learned
+                FROM definitions
+                INNER JOIN users_definitions ON users_definitions.definition_id = definitions.definition_id
+                INNER JOIN users ON  users.user_id = users_definitions.user_id
+                INNER JOIN lexical_category ON lexical_category.category_id = definitions.category_id
+                INNER JOIN words ON words.word_id = definitions.word_id
+                INNER JOIN examples ON examples.definition_id = definitions.definition_id
+                WHERE users.user_id = (?)
+                ORDER BY learned DESC,  date DESC, words.word DESC''', (2,))
+
+        words_saved = cur.fetchall()
+        columns = [column[0] for column in cur.description]
+        print(columns)
+        print(words_saved)
+
+        words = []
+        # dict = {}
+
+        for row in words_saved:
+            words.append(dict(zip(columns, row)))
+
+        # for word in words_saved:
+        #     for idx, column in enumerate(column_names):
+        #         dict[column] = word[idx] 
+        #     words.append(dict)
+
+        print(words)
+
+        # We'll save the words in a dictionary of dicts (each dict will be a word with the information)
+        definitions_saved = {
+            # definition_id : {
+            #     word : 'word',
+            #     definition : 'definition',
+            #     category : 'category',
+            #     examples : []
+            # },
+            # definition_id_2 : {
+            #     word : 'word',
+            #     definition : 'definition',
+            #     category : 'category',
+            #     examples : []
+            # }
+        }
+
+        for i in words:
+            if i['definition_id'] in definitions_saved:
+                definitions_saved[i['definition_id']]['example'].append(i['example'])
+            else:
+                definitions_saved[i['definition_id']] = {
+                    'word': i['word'],
+                    'category': i['category'],
+                    'definition': i['definition'],
+                    'example': [i['example']],
+                    'date': i['date'],
+                    'learned': i['learned']
+                }
+        
+        print(definitions_saved)
+
+
+        
+        
+        
+
+    return render_template("words_list.html", words=words_saved)

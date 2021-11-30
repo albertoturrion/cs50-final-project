@@ -2,6 +2,8 @@ import json
 import os
 import requests
 import re
+from functools import wraps
+from flask import redirect, render_template, request, session, url_for
 
 app_id = os.getenv('app_id')
 app_key = os.getenv('app_key')
@@ -122,7 +124,7 @@ def check_email(email):
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if g.user is None:
+        if session.get('user_id') is None:
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
