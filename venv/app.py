@@ -168,7 +168,15 @@ def save_word():
         cur.execute("SELECT definition_id, definition FROM definitions WHERE definition=(?)", (req["definition"],))
 
         definition = cur.fetchone()
-        # if the definition exists, we only should assign it to the user 
+        # if the definition exists (and the user have not saved yet), we only should assign it to the user 
+
+        cur.execute("SELECT definition_id FROM users_definitions WHERE user_id = (?)", (user,))
+        definition_is_saved = cur.fetchone()
+        # if the user has that definition saved, we inform him
+        if definition_is_saved != None:
+            response = jsonify({'message':'The word is already saved'})
+            return response
+
         if definition != None:
             cur.execute("INSERT INTO users_definitions(user_id, definition_id) VALUES (?,?)", (user, definition[0]))
         # if not exists, we should create it and then assign it to the user 
@@ -269,25 +277,17 @@ def your_list():
                 INNER JOIN words ON words.word_id = definitions.word_id
                 INNER JOIN examples ON examples.definition_id = definitions.definition_id
                 WHERE users.user_id = (?)
-                ORDER BY learned DESC,  date DESC, words.word DESC''', (2,))
+                ORDER BY learned DESC,  date DESC, words.word DESC''', (user_id,))
 
         words_saved = cur.fetchall()
+        # saving  colums names 
         columns = [column[0] for column in cur.description]
-        print(columns)
-        print(words_saved)
 
         words = []
         # dict = {}
 
         for row in words_saved:
             words.append(dict(zip(columns, row)))
-
-        # for word in words_saved:
-        #     for idx, column in enumerate(column_names):
-        #         dict[column] = word[idx] 
-        #     words.append(dict)
-
-        print(words)
 
         # We'll save the words in a dictionary of dicts (each dict will be a word with the information)
         definitions_saved = {
@@ -319,10 +319,11 @@ def your_list():
                 }
         
         print(definitions_saved)
-
-
-        
-        
         
 
-    return render_template("words_list.html", words=words_saved)
+    return render_template("words_list.html", definitions=definitions_saved)
+
+
+@app.route("/test")
+def test():
+    return render_template("test.html")

@@ -231,6 +231,7 @@ footer p {
     color: var(--secondary-color);
 }
 
+h3.list_lexical-entry span,
 h3.results_lexical-entry span {
     font-weight: bold;
     font-size: 0.9rem;
@@ -238,6 +239,7 @@ h3.results_lexical-entry span {
     font-style: italic;
 }
 
+h3.list_lexical-entry::after,
 h3.results_lexical-entry::after {
     content: "";
     display: block;
@@ -254,6 +256,7 @@ h3.results_lexical-entry::after {
     color: var(--primary-color);
 }
 
+li.list_example,
 li.results_example {
     font-size: 1.1rem;
 }
@@ -297,3 +300,32 @@ span.division:last-of-type {
     font-style: italic;
     letter-spacing: 1.1px;
 }
+
+
+/* User list */
+/* This page have similar styles than results page, so some styles can be modified from that section */
+
+.list .words-not-learned h2,
+.list .words-learned h2 {
+    margin-top: 10px;
+}
+
+.list p.list_date {
+    margin-bottom: 6px;
+    font-size: 1rem;
+    font-style: italic;
+}
+
+p.list_date span {
+    vertical-align: text-bottom;
+    margin-right: 5px;
+}
+
+p.list_date.learned span {
+    color: green;
+}
+
+p.list_date.not-learned span {
+    color: red;
+}
+
