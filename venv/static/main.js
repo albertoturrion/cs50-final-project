@@ -4,6 +4,7 @@ window.addEventListener('DOMContentLoaded', (event)=> {
     
     // Results page
     word_data = get_result_saved()
+    get_words_unlearned()
 
 
 })
@@ -64,4 +65,16 @@ function save_word(word_data)
             response.json().then(data=> console.log(data));
         })
         .catch(error => console.log(`Fetch error: ${error}`))
+}
+
+function get_words_unlearned()
+{
+    fetch("/get-words-unlearned")
+    .then(response => {
+        return response.json()
+    })
+    .then(text => {
+        console.log(text)
+    })
+
 }

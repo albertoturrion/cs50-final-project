@@ -257,16 +257,6 @@ def your_list():
     # collecting every definitions saved for the user
     with sqlite3.connect("users.db") as con:
         cur = con.cursor()
-        # cur.execute(
-        #     '''SELECT word, category, definition, date, learned
-        #     FROM definitions
-        #     INNER JOIN users_definitions ON users_definitions.definition_id = definitions.definition_id
-        #     INNER JOIN users ON  users.user_id = users_definitions.user_id
-        #     INNER JOIN lexical_category ON lexical_category.category_id = definitions.category_id
-        #     INNER JOIN words ON words.word_id = definitions.word_id
-        #     WHERE users.user_id = (?)
-        #     ORDER BY learned DESC,  date DESC, words.word DESC''', (user_id,))
-
 
         cur.execute(
             '''SELECT name, definitions.definition_id, word, category, definition , example, date, learned
@@ -326,4 +316,50 @@ def your_list():
 
 @app.route("/test")
 def test():
-    return render_template("test.html")
+    return render_template("test.html",)
+
+
+@app.route("/get-words-unlearned", methods=["GET"])
+def get_words_unlearned():
+    if request.method == "GET":
+        user_id = session.get("user_id", None)
+        with sqlite3.connect("users.db") as con:
+            cur = con.cursor()
+
+            cur.execute(
+                '''SELECT name, definitions.definition_id, word, category, definition , example, date, learned
+                    FROM definitions
+                    INNER JOIN users_definitions ON users_definitions.definition_id = definitions.definition_id
+                    INNER JOIN users ON  users.user_id = users_definitions.user_id
+                    INNER JOIN lexical_category ON lexical_category.category_id = definitions.category_id
+                    INNER JOIN words ON words.word_id = definitions.word_id
+                    INNER JOIN examples ON examples.definition_id = definitions.definition_id
+                    WHERE users.user_id = (?) AND definitions.learned IS NULL
+                    ORDER BY learned DESC,  date DESC, words.word DESC''', (user_id, ))
+
+            words_saved = cur.fetchall()
+            # saving  colums names 
+            columns = [column[0] for column in cur.description]
+
+            words = []
+
+            for row in words_saved:
+                words.append(dict(zip(columns, row)))
+
+            # Saving the definition in a dictionary
+            words_not_learned = {}
+
+            for i in words:
+                if i['definition_id'] in words_not_learned:
+                    words_not_learned[i['definition_id']]['example'].append(i['example'])
+                else:
+                    words_not_learned[i['definition_id']] = {
+                        'word': i['word'],
+                        'category': i['category'],
+                        'definition': i['definition'],
+                        'example': [i['example']],
+                        'date': i['date'],
+                        'learned': i['learned']
+                    }
+            print(words_not_learned)
+            return jsonify(words_not_learned)
