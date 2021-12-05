@@ -316,7 +316,7 @@ def your_list():
 
 @app.route("/test")
 def test():
-    return render_template("test.html",)
+    return render_template("test.html")
 
 
 @app.route("/get-words-unlearned", methods=["GET"])
