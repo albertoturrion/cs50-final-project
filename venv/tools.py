@@ -4,6 +4,9 @@ import requests
 import re
 from functools import wraps
 from flask import redirect, render_template, request, session, url_for
+import datetime
+
+
 
 app_id = os.getenv('app_id')
 app_key = os.getenv('app_key')
@@ -128,3 +131,10 @@ def login_required(f):
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
+
+
+def get_today_formatted():
+    today = datetime.date.today()
+    # converting date to string
+    today_str = today.strftime("%d-%m-%Y")
+    return today_str

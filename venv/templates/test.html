@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block title %} Test your progress! {% endblock %}
+
+
+{% block body %}
+
+<section class="test container">
+    <h1>Write the correct word to learn it</h1>
+    <p id="test-lexical_category"></p>
+    <p id="test-definition"></p>
+    <ul id="test-examples"></ul>
+    <input id="test-answer" type="text" class="form-control" placeholder="Answer">
+    <button id="test-check-answer" class="button btn-gold">CHECK</button>
+    <button id="test-next-word" class="button btn-orange">NEXT WORD</button>
+    <p id="test-correction"></p>
+</section>
+
+{% endblock %}

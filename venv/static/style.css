@@ -153,6 +153,11 @@ p.flash {
     color: white;
 }
 
+.btn-orange {
+    background-color: #C88400;
+    color: white;
+}
+
 .btn-white {
     background-color: white;
     color: var(--primary-color);
@@ -257,7 +262,8 @@ h3.results_lexical-entry::after {
 }
 
 li.list_example,
-li.results_example {
+li.results_example
+li.test_example {
     font-size: 1.1rem;
 }
 
@@ -329,3 +335,17 @@ p.list_date.not-learned span {
     color: red;
 }
 
+/* Test page */
+
+.answer {
+    text-align: center;
+    font-style: italic;
+}
+
+.correct {
+    color: green;
+}
+
+.incorrect {
+    color: red;
+}
