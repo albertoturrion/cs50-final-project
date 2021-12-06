@@ -2,13 +2,13 @@ from flask import Flask, flash, redirect, render_template, request, url_for, ses
 from flask_session import Session
 from tables import delete_tables, seed_tables, create_tables
 from tempfile import mkdtemp
-from tools import api_data, check_email, get_lemmas, login_required
+from tools import api_data, check_email, get_lemmas, login_required, get_today_formatted
 from werkzeug.security import check_password_hash, generate_password_hash
 import json
 import os
 import requests
 import sqlite3
-
+import datetime
 
 
 app = Flask(__name__)
@@ -159,6 +159,7 @@ def navbar():
 def save_word():
     req = request.get_json()
     print(req)
+    today = get_today_formatted()
     if 'user_id' in session:
         user = session.get('user_id')
         print(user)
@@ -166,19 +167,20 @@ def save_word():
         cur = con.cursor()
         # checking if the definition already exists in the table (we don't need to check word and category, definitions are unique)
         cur.execute("SELECT definition_id, definition FROM definitions WHERE definition=(?)", (req["definition"],))
-
         definition = cur.fetchone()
-        # if the definition exists (and the user have not saved yet), we only should assign it to the user 
-
-        cur.execute("SELECT definition_id FROM users_definitions WHERE user_id = (?)", (user,))
-        definition_is_saved = cur.fetchone()
-        # if the user has that definition saved, we inform him
-        if definition_is_saved != None:
-            response = jsonify({'message':'The word is already saved'})
-            return response
-
+        
+        # If the definition exists
         if definition != None:
-            cur.execute("INSERT INTO users_definitions(user_id, definition_id) VALUES (?,?)", (user, definition[0]))
+            # checking if the user has that definition saved
+            cur.execute("SELECT definition_id FROM users_definitions WHERE user_id = (?) AND definition_id = (?)", (user, definition[0]))
+            definition_is_saved = cur.fetchone()
+            # if the user has that definition saved, we inform him
+            if definition_is_saved != None:
+                response = jsonify({'message':'The word is already saved'})
+                return response
+            # if the user has not saved it yet, we only should assign it to the user 
+            else:
+                cur.execute("INSERT INTO users_definitions(user_id, definition_id, date) VALUES (?,?,?)", (user, definition[0], today))
         # if not exists, we should create it and then assign it to the user 
         else:
             # if the word doesn't exists, we should create it and save it in the table
@@ -187,13 +189,11 @@ def save_word():
             if word_exists == None:
                 cur.execute('INSERT INTO words (word) VALUES (?)', (req['word'],))
                 new_word_id = cur.lastrowid
-                # # linking the new word to definitions table
-                # cur.execute("INSERT INTO definitions(word_id) VALUES (?)", (new_word_id,))
             # We can save the word_id as a global variable to use it onwards
             cur.execute("SELECT word_id FROM words WHERE word = (?)", (req["word"],))
             word_id = cur.fetchone()[0]
 
-            # now we know we exists, so we should check if the lexical category chosen by the user is linked to this word, the user could
+            # now we know it exists, so we should check if the lexical category chosen by the user is linked to this word, the user could
             # add more than one categories for the same word (noun, verb...) 
 
             # checking if the lexical category exist in the table
@@ -213,7 +213,7 @@ def save_word():
                 for example in req["examples"]:
                     cur.execute("INSERT INTO examples (definition_id, example) VALUES (?,?)", (new_definition_id, example))
                 # finally, linking the new definition to the user
-                cur.execute("INSERT INTO users_definitions(user_id, definition_id) VALUES (?,?)", (user, new_definition_id))
+                cur.execute("INSERT INTO users_definitions(user_id, definition_id, date) VALUES (?,?,?)", (user, new_definition_id, today))
             
             # if the category doesn't exist, we should save it first
             else:
@@ -222,13 +222,13 @@ def save_word():
                 # linking the word to the new category
                 cur.execute("INSERT INTO words_lexical_category(word_id, category_id) VALUES (?,?)", (word_id, new_category_id))
                 # Now the new category is linked to the word, we should add the definition and the examples
-                cur.execute("INSERT INTO definitions(word_id, category_id, definition) VALUES (?,?,?)",(word_id, new_category_id, req["definition"],))
+                cur.execute("INSERT INTO definitions(word_id, category_id, definition) VALUES (?,?,?)",(word_id, new_category_id, req["definition"]))
                 new_definition_id = cur.lastrowid
                 # inserting the examples related to the new definition
                 for example in req["examples"]:
                     cur.execute("INSERT INTO examples (definition_id, example) VALUES (?,?)", (new_definition_id, example))
                 # finally, linking the new definition to the user
-                cur.execute("INSERT INTO users_definitions(user_id, definition_id) VALUES (?,?)", (user, new_definition_id))
+                cur.execute("INSERT INTO users_definitions(user_id, definition_id, date) VALUES (?,?,?)", (user, new_definition_id, today))
 
         con.commit()
     response = make_response(jsonify({'message':'OK'}), 200)
@@ -334,7 +334,7 @@ def get_words_unlearned():
                     INNER JOIN lexical_category ON lexical_category.category_id = definitions.category_id
                     INNER JOIN words ON words.word_id = definitions.word_id
                     INNER JOIN examples ON examples.definition_id = definitions.definition_id
-                    WHERE users.user_id = (?) AND definitions.learned IS NULL
+                    WHERE users.user_id = (?) AND learned IS NULL
                     ORDER BY learned DESC,  date DESC, words.word DESC''', (user_id, ))
 
             words_saved = cur.fetchall()
@@ -363,3 +363,22 @@ def get_words_unlearned():
                     }
             print(words_not_learned)
             return jsonify(words_not_learned)
+
+
+
+@app.route("/save-test-result", methods=["POST"])
+def save_test_result():
+    if request.method == 'POST':
+        test_results = request.get_json()
+        print(test_results)
+        user_id = session.get('user_id')
+        today = get_today_formatted()
+        with sqlite3.connect('users.db') as con:
+            cur = con.cursor()
+            # changing the words unlearned to learned
+            for learned_id in test_results['learned']:
+                cur.execute("UPDATE users_definitions SET learned = (?) WHERE definition_id = (?) AND user_id = (?)",(today, learned_id, user_id))
+
+            con.commit()
+            response = make_response(jsonify({'message':'Results saved properly'}), 200)
+            return response

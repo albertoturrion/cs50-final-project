@@ -13,12 +13,9 @@ window.addEventListener('DOMContentLoaded', (event)=> {
     
     // Results page
     let word_data = get_result_saved();
-    if (window.location.pathname.includes("/test")) 
+    if (first_word = true)
     {
-        if (first_word = true)
-        {
-            show_test()
-        }
+        show_test()
     }
 })
 
@@ -99,29 +96,39 @@ async function show_test() {
         ids_words['unlearned'] = ids_unlearned
     }
     console.log("show_words - ids_words created", ids_words)
+    
+
+    console.log("ids_unlearned:", ids_unlearned)
 
     // pick the id of the next word unlearned
     current_id = ids_words['unlearned'][0];
     console.log("Current id:", current_id)
 
-    load_definition(current_id, words)
+    // getting the first word
+    let word = words[current_id]["word"]
+    console.log(word)
 
+    let category = document.querySelector("#test-lexical_category")
+    let definition = document.querySelector("#test-definition")
+    let div_examples = document.querySelector("#test-examples")
     let check_button = document.querySelector("#test-check-answer")
     let next_word_button = document.querySelector("#test-next-word")
     let text_correction = document.querySelector("#test-correction")
 
+    load_definition(current_id, category, definition, div_examples, words)
+
     // if the user clicks the button "check"
     check_button.addEventListener("click", e => {
         let answer = document.querySelector("#test-answer").value
-        correction = check_word(answer, words[ids_words['unlearned'][0]]['word']);
+        correction = check_word(answer, word);
         if (correction == "Correct") {
-            // save the id of the definition learned
-            if (ids_words['unlearned'].length > 0){
-                ids_words['learned'].push(ids_words['unlearned'][0])
-            } 
             // remove the id of the learned definition. It returns "undefinied" if there is no more elements
             let definitions_pendant = ids_words['unlearned'].shift()
 
+            // save the id of the definition learned
+            if (definitions_pendant != undefined){
+                ids_words['learned'].push(current_id)
+            } 
             // update the value of first_word to avoid loading again all ids_unlearned
             first_word = false;
             text_correction.className = ""
@@ -131,13 +138,11 @@ async function show_test() {
             if (ids_words['unlearned'].length > 0)
             {
                 console.log("Good job! ids_words", ids_words);
-                load_definition(ids_words['unlearned'][0], words)
+                show_test()
             }
             else
             {
-                console.log("Test finished")
-                console.log("ids_words", ids_words);
-                send_test_result (ids_words)
+                console.log("Finished! ids_words", ids_words);
             }
         }
         else {
@@ -150,39 +155,32 @@ async function show_test() {
     // if the user clicks the button next word
     next_word_button.addEventListener("click", (e)=> {
         // save the id of that word within an array (creating it if not exists)
-        ids_words['passed'].push(ids_words['unlearned'][0])
+        ids_words['passed'].push(current_id)
         // first, we should remove that word from ids_unlearned
         ids_words['unlearned'].shift()
         // update the value of first_word to avoid loading again all ids_unlearned
         first_word = false;
         text_correction.className = ""
-        text_correction.textContent = ""
         // if it is the last word, finish the test
         if (ids_words['unlearned'].length > 0)
         {
             console.log("Word passed! ids_words", ids_words);
-            load_definition(ids_words['unlearned'][0], words)
+            e.stopImmediatePropagation()
+            show_test()
+            console.log("Click event loop finished")
         }
         // if there is more words, show the next word
         else 
         {
             console.log("Test finished")
             console.log("ids_words", ids_words);
-            send_test_result (ids_words)
         }
     });
     
 
 }
 
-// we shoud receive the id of the word we should load and the words (definitions) data as a JSON
-function load_definition(id, words) {
-
-    // First, we need to store the DOM elements in which we'll add the definition information
-    let category = document.querySelector("#test-lexical_category")
-    let definition = document.querySelector("#test-definition")
-    let div_examples = document.querySelector("#test-examples")
-
+function load_definition(id, category, definition, div_examples, words) {
     // if first_word = false (we are loading the rest of the words, then we should clean the examples to avoid repetition)
     // Otherwise, we would be adding each example
     // Same with answer field
@@ -192,9 +190,8 @@ function load_definition(id, words) {
         // cleaning answer input
         answer = document.querySelector("#test-answer")
         answer.value = "";
-    }
 
-    // adding the information to each DOM elements
+    }
     category.textContent = words[id]["category"]
     definition.textContent = words[id]["definition"]
     examples = words[id]["example"]
@@ -219,16 +216,3 @@ function check_word(answer, word) {
     }
 }
 
-function send_test_result (final_result)
-{
-    fetch ("/save-test-result",
-    {
-        method: 'POST',
-        body: JSON.stringify(final_result),
-        headers:{
-            'Content-Type': 'application/json'
-        }
-    }).then(res => res.json())
-    .catch(error => console.error('Error:', error))
-    .then(response => console.log('Success:', response))
-}
