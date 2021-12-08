@@ -10,6 +10,16 @@
     font-family: 'Roboto', sans-serif;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+img {
+    max-width: 100%;
+}
+
 /* Changing Bootstrap container */
 .container {
     padding-top: 20px;
@@ -130,6 +140,21 @@ p.flash {
     font-weight: bold;
 }
 
+section.what-is img {
+    content: url("../static/images/results_screenshot_mobile.jpg");
+    max-width: 300px;
+    margin: 0 0 16px 0px;
+    border-radius: 8px;
+    box-shadow: 0 0 8px 1px gray;
+}
+
+.why, .motivation, .what-is {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
 .button {
     display: block;
     width: 100%;
@@ -164,8 +189,6 @@ p.flash {
 }
 
 .why {
-    /* padding-top: 20px;
-    padding-bottom: 20px; */
     background-color: #fafafa;
 }
 
@@ -180,10 +203,12 @@ p.flash {
 }
 
 footer {
+    margin-top: auto;
     text-align: center;
     background-color: var(--primary-color);
     color: white;
 }
+
 
 footer p {
     font-size: 1rem;
@@ -224,6 +249,28 @@ footer p {
 
 .register-section input:last-of-type {
     margin-bottom: none;
+}
+
+/* Users Progress page */
+table {
+    width: 100%;
+    border: 1px solid var(--primary-color);
+    text-align: center;
+}
+
+tr {
+    padding: 5px;
+    border: 1px solid var(--primary-color);
+}
+
+th {
+    font-weight: bold;
+}
+
+td, th {
+    width: 33%;
+    border: 1px solid var(--primary-color);
+    padding: 3px;
 }
 
 /* Results page */

@@ -90,7 +90,7 @@ def login():
             session['user_id'] = db_user[0]
             session['name'] = db_user[1]
             flash(f"You have been successfully logged as {db_user[1]}")
-            return redirect(url_for("index"))
+            return redirect(url_for("user_progress"))
 
 
 @app.route("/register", methods=['GET','POST'])
@@ -141,7 +141,7 @@ def register():
             session["user_id"] = new_user_id
 
             flash(f"You have been successfully signed up as {name}")
-            return redirect(url_for("index"))
+            return redirect(url_for("user_progress"))
 
 
 @app.route("/logout")
@@ -149,6 +149,86 @@ def register():
 def logout():
     session.clear()
     return redirect(url_for("index"))
+
+
+@app.route("/user-progress")
+def user_progress():
+    user_id = session.get("user_id", None)
+    # collecting every definitions saved for the user
+    with sqlite3.connect("users.db") as con:
+        cur = con.cursor()
+
+        # check if the users has any definition saved
+        cur.execute("SELECT definition_id FROM users_definitions WHERE user_id = (?)", (user_id,))
+        user_has_words = cur.fetchone()
+        
+        # getting all words learned to calculate the number of words learned by each period (7 days, 30 days, total)
+        today = datetime.datetime.today()
+        progress = {
+            'last7' : 0,
+            'last30' : 0,
+            'total' : 0
+        }
+        cur.execute("SELECT learned FROM users_definitions WHERE user_id = (?) AND NOT learned IS NULL", (user_id,))
+        dates_learned = cur.fetchall()
+        # if the user has words learned we should saved them into the progress dictionary
+        if dates_learned != None:
+            for date in dates_learned:
+                print(date[0])
+                # definition should be a date time object (it is stored as a string)
+                date_learned = datetime.datetime.strptime(date[0], "%d-%m-%Y")
+                # delta will be the difference between days (today and each date)
+                delta = today - date_learned
+                if delta.days < 7:
+                    progress['last7'] += 1
+                if delta.days < 30:
+                    progress['last30'] += 1
+            
+            progress['total'] = len(dates_learned)
+
+        if user_has_words == None:
+            definition_saved = {}
+        else:
+            cur.execute(
+                '''SELECT name, definitions.definition_id, word, category, definition , example, date, learned
+                    FROM definitions
+                    INNER JOIN users_definitions ON users_definitions.definition_id = definitions.definition_id
+                    INNER JOIN users ON  users.user_id = users_definitions.user_id
+                    INNER JOIN lexical_category ON lexical_category.category_id = definitions.category_id
+                    INNER JOIN words ON words.word_id = definitions.word_id
+                    INNER JOIN examples ON examples.definition_id = definitions.definition_id
+                    WHERE users.user_id = (?)
+                    ORDER BY learned DESC,  date DESC, words.word DESC''', (user_id,))
+
+            words_saved = cur.fetchall()
+            # saving  colums names 
+            columns = [column[0] for column in cur.description]
+
+            words = []
+
+            for row in words_saved:
+                words.append(dict(zip(columns, row)))
+
+            # We'll save the words in a dictionary of dicts (each dict will be a word with the information)
+            definitions_saved = {}
+
+            for i in words:
+                if i['definition_id'] in definitions_saved:
+                    definitions_saved[i['definition_id']]['example'].append(i['example'])
+                else:
+                    definitions_saved[i['definition_id']] = {
+                        'word': i['word'],
+                        'category': i['category'],
+                        'definition': i['definition'],
+                        'example': [i['example']],
+                        'date': i['date'],
+                        'learned': i['learned']
+                    }
+            
+            print(definitions_saved)
+            
+
+    return render_template("user_progress.html", definitions=definitions_saved, progress=progress)
 
 @app.route("/navbar")
 def navbar():
@@ -244,6 +324,9 @@ def search_word():
         if not isinstance(lemmas, list):
             flash(lemmas)
             return redirect(url_for("index"))
+        if data == 'error':
+            flash(f'The word {word} has not been found')
+            return redirect(url_for("index"))
         counter = 0
         return render_template('results.html', word=word, data=data, lemmas=lemmas, counter = counter)
     except AssertionError as error:
@@ -257,6 +340,13 @@ def your_list():
     # collecting every definitions saved for the user
     with sqlite3.connect("users.db") as con:
         cur = con.cursor()
+
+        # check if the users has any definition saved
+        cur.execute("SELECT definition_id FROM users_definitions WHERE user_id = (?)", (user_id,))
+        user_has_words = cur.fetchone()
+        if user_has_words == None:
+            flash("You don't have any word saved!")
+            return redirect(url_for("index"))
 
         cur.execute(
             '''SELECT name, definitions.definition_id, word, category, definition , example, date, learned

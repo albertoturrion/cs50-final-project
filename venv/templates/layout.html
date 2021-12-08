@@ -22,20 +22,20 @@
     <header>
     <nav class="navbar navbar-expand-lg navbar-dark"> 
         <div class="container-fluid">
+            {% if not session.user_id %}
             <a class="navbar-brand" href="/">
                 <img src="../static/images/english-inmersion-logo.png" alt="English Inmersion Logo">
             </a>
+            {% else %}
+            <a class="navbar-brand" href="/user-progress">
+                <img src="../static/images/english-inmersion-logo.png" alt="English Inmersion Logo">
+            </a>
+            {% endif %}
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Dictionary</a>
-                    </li>
                     {% if session.user_id %}
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{{ url_for('your_list') }}">Your list</a>
@@ -47,8 +47,8 @@
                 </ul>
                 {% if not session.user_id %}
                 <div class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <a href="/login" class="nav-link active me-2 button button-small btn-white" aria-current="page">LOGIN</a>
-                    <a href="/register" class="nav-link active me-2 button button-small btn-gold" aria-current="page">SIGN-UP</a>
+                    <a href="/login" class="nav-link active me-2 button button-small btn-white btn-navbar" aria-current="page">LOGIN</a>
+                    <a href="/register" class="nav-link active me-2 button button-small btn-gold btn-navbar" aria-current="page">SIGN-UP</a>
                 </div>
                 {% endif %}
                 <div class="search-logout">

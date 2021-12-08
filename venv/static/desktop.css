@@ -1,6 +1,62 @@
+.container, 
+.container-fluid {
+    max-width: 978px;
+}
+
+h1, h2, h3 {
+    margin: 15px 0;
+}
+
+h1 {
+    font-size: 2.5rem !important;
+}
+
+h2 {
+    font-size: 2rem !important;
+}
+
+h3 {
+    font-size: 1.8rem !important;
+}
+
+p, li {
+    font-size: 1.3rem;
+    line-height: 2;
+}
+
 nav .navbar-nav a.button.btn-white[href="/login"],
 nav .navbar-nav a.button.btn-white[href="/sign-up"] {
     width: auto;
+}
+
+/* Home page */
+
+.home-hero {
+    height: 80vh
+}
+
+.home-hero p {
+    font-size: 1.5rem;
+}
+
+.home-hero p span {
+    font-size: 1.8rem;
+}
+
+section.what-is img {
+    content: url("../static/images/results_screenshot_desktop.jpg");
+    max-width: 100%;
+}
+
+.why, .motivation, .what-is {
+    display: block;
+}
+
+nav .navbar-nav a.button.btn-white.btn-navbar[href="/login"],
+nav .navbar-nav a.button.btn-gold.btn-navbar[href="/register"],
+nav .navbar-nav a.button.btn-white.btn-navbar[href="/logout"] {
+    display: inline-block;
+    width: 110px;
 }
 
 .search-logout {

@@ -3,7 +3,7 @@ import os
 import requests
 import re
 from functools import wraps
-from flask import redirect, render_template, request, session, url_for
+from flask import redirect, render_template, request, session, url_for, flash
 import datetime
 
 
@@ -76,6 +76,9 @@ def api_data(word):
                     # adding the entry to word, it can have more than one entry
                     words.append(entry)
             return words
+        else:
+            # if it doesn't return 200 status code and it's not catched as an error
+            return ('error')
     except AssertionError as error:
         print(error)
 
@@ -90,7 +93,8 @@ def get_lemmas(word):
     try:
         r = requests.get(lemasURL, headers={'app_id': app_id, 'app_key': app_key})
     except AssertionError as error:
-        return error
+        flash(error)
+        return redirect(url_for("index"))
     
     if r.status_code == 200:
         response = r.json()
