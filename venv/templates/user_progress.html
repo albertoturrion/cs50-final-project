@@ -35,7 +35,9 @@
             <p class="list_definition">{{ definitions[definition_id]['definition'] }}</p>
             <ul> 
                 {% for example in definitions[definition_id]['example'] %}
+                    {% if example is not none %}
                     <li class="list_example">{{ example }}</li>
+                    {% endif %}
                 {% endfor %}
             </ul>
         </div>

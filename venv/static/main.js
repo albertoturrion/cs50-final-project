@@ -17,9 +17,30 @@ window.addEventListener('DOMContentLoaded', (event)=> {
     {
         if (first_word = true)
         {
-            show_test()
+            show_test();
         }
     }
+
+    // Pop-up functionality
+    const close_icon = document.querySelector(".popup-wrapper .popup-header span")
+    close_icon.addEventListener("click", () => {
+        const wrapper = document.querySelector(".popup-wrapper")
+        const overlay = document.querySelector(".wrapper-overlay")
+        wrapper.remove()
+        overlay.remove();
+    })
+
+    // Only to notice the user he has finished the test
+    // Only display the message if the user comes from /test
+    if (document.referrer.includes("/test")){
+        // Only display the message if the user is in his list
+        if (window.location.pathname.includes("/your-list"))
+        {
+            const message = "You have finished your test! Check the words in your list."
+            show_top_modal(message)
+        }
+    }
+
 })
 
 
@@ -37,28 +58,54 @@ function get_result_saved()
 }
 
 // Taking into account the bookmark clicked, return the word data related to it in a JSON
-function get_data_bookmarked(id)
+async function get_data_bookmarked(id)
 {
-    word = document.querySelector("#word").textContent
-    lexical_category = document.querySelector(`#lexical_category-${CSS.escape(id[0])}`).textContent.replace(/[()]/g,"").toLowerCase()
-    definition = document.querySelector(`#definition-${CSS.escape(id)}`).textContent.replace('bookmark_adda','').trim()
-    if (definition.slice(0,12) == 'bookmark_add'){
-        definition = definition.slice(12).trim()
+    const user_logged = await get_user_status()
+    console.log(user_logged)
+    if (user_logged['status'] == null) {
+        console.log(user_logged['status']);
+        // show pop-up to log-in
+        const body = document.querySelector('body')
+        const wrapper = document.querySelector(".popup-wrapper");
+        const overlay = document.createElement('div')
+        overlay.setAttribute('class','wrapper-overlay')
+        body.append(overlay)
+        wrapper.style['display'] = 'block';
+
+
     }
-    // It is possible there are more than one example
-    examples = []
-    examples_clicked = document.querySelectorAll(`#example-${CSS.escape(id)}`)
-    examples_clicked.forEach(example => examples.push(example.textContent))
-    word_data = {
-        'word': word,
-        'lexical_category': lexical_category,
-        'definition': definition,
-        'examples': examples
+    else {
+        word = document.querySelector("#word").textContent
+        lexical_category = document.querySelector(`#lexical_category-${CSS.escape(id[0])}`).textContent.replace(/[()]/g,"").toLowerCase()
+        definition = document.querySelector(`#definition-${CSS.escape(id)}`).textContent.replace('bookmark_adda','').trim()
+        if (definition.slice(0,12) == 'bookmark_add')
+        {
+            definition = definition.slice(12).trim()
+        };
+        // It is possible there are more than one example
+        examples = []
+        examples_clicked = document.querySelectorAll(`#example-${CSS.escape(id)}`)
+        examples_clicked.forEach(example => examples.push(example.textContent))
+        word_data = {
+            'word': word,
+            'lexical_category': lexical_category,
+            'definition': definition,
+            'examples': examples
+        }
+        const data = await save_word(word_data);
+        // if the word has been saved properly, we should notice the user
+        if (data.status == 200)
+        {
+            message = 'The word has been successfully saved!'
+            show_top_modal(message)
+        }
+        console.log(data);
+        console.log(data.status);
+        
     }
-    save_word(word_data)
 }
 
-function save_word(word_data)
+async function save_word(word_data)
 {
     init = {
         method: "POST",
@@ -69,15 +116,26 @@ function save_word(word_data)
     };
 
     fetch(`${window.origin}/save-word`, init)
-        .then((response) => {
-            if(response.status !== 200)
-            {
-                console.log(`There was a problem saving the word. Status code: ${response.status}`);
-                return;
-            }
-            response.json().then(data=> console.log(data));
-        })
-        .catch(error => console.log(`Fetch error: ${error}`))
+        // .then((response) => {
+        //     if(response.status !== 200)
+        //     {
+        //         console.log(`There was a problem saving the word. Status code: ${response.status}`);
+        //         return;
+        //     }
+        //     response.json().then(data => {console.log(data)});
+        // })
+        // .catch(error => console.log(`Fetch error: ${error}`))
+
+        const response = await fetch(`${window.origin}/save-word`, init);
+        if (response.status == 200)
+        {
+            const data = await response.json()
+            return response;
+        }
+        else
+        {
+            return 'There was an error saving the word'
+        }
 }
 
 async function get_words_unlearned()
@@ -169,6 +227,7 @@ async function show_test() {
             console.log("Test finished")
             console.log("ids_words", ids_words);
             send_test_result (ids_words)
+            window.location.replace("/your-list")
         }
     });
     
@@ -198,12 +257,15 @@ function load_definition(id, words) {
     category.textContent = words[id]["category"]
     definition.textContent = words[id]["definition"]
     examples = words[id]["example"]
-    examples.forEach(example => {
-        example_item = document.createElement("li")
-        example_item.setAttribute("class", "test_example")
-        example_item.innerText = example.replace(words[id]["word"],"_".repeat(words[id]["word"].length))
-        div_examples.appendChild(example_item)
-    })
+    if (examples[0] != null)
+    {
+        examples.forEach(example => {
+            example_item = document.createElement("li")
+            example_item.setAttribute("class", "test_example")
+            example_item.innerText = example.replace(words[id]["word"],"_".repeat(words[id]["word"].length))
+            div_examples.appendChild(example_item)
+        })
+    }
 }
 
 function check_word(answer, word) {
@@ -231,4 +293,35 @@ function send_test_result (final_result)
     }).then(res => res.json())
     .catch(error => console.error('Error:', error))
     .then(response => console.log('Success:', response))
+}
+
+async function get_user_status() 
+{
+    let response = await fetch("/get_user_session")
+    res = await response.json()
+    console.log(res)
+    return res
+}
+
+// function to show a modal at the top of the page with a message
+function show_top_modal(information)
+{
+    const modal = document.createElement('div')
+    const modal_close = document.createElement('span')
+    modal_close.setAttribute('class','material-icons')
+    modal_close.textContent = 'close'
+    modal.append(modal_close)
+    modal.setAttribute('class', 'modal-top')
+    const message = document.createElement('p')
+    const body = document.querySelector('body')
+    message.textContent = information
+    modal.append(message)
+    body.append(modal)
+
+    // Modal-top close
+    // const close_modal = document.querySelector(".modal-top span")
+    modal_close.addEventListener("click", () => {
+        const modal = document.querySelector('.modal-top')
+        modal.remove();
+    })
 }

@@ -196,7 +196,7 @@ def user_progress():
                     INNER JOIN users ON  users.user_id = users_definitions.user_id
                     INNER JOIN lexical_category ON lexical_category.category_id = definitions.category_id
                     INNER JOIN words ON words.word_id = definitions.word_id
-                    INNER JOIN examples ON examples.definition_id = definitions.definition_id
+                    LEFT JOIN examples ON examples.definition_id = definitions.definition_id
                     WHERE users.user_id = (?)
                     ORDER BY learned DESC,  date DESC, words.word DESC''', (user_id,))
 
@@ -236,6 +236,7 @@ def navbar():
 
 
 @app.route("/save-word", methods=["POST"])
+@login_required
 def save_word():
     req = request.get_json()
     print(req)
@@ -334,7 +335,6 @@ def search_word():
 
 
 @app.route("/your-list", methods=["GET"])
-@login_required
 def your_list():
     user_id = session.get("user_id", None)
     # collecting every definitions saved for the user
@@ -355,7 +355,7 @@ def your_list():
                 INNER JOIN users ON  users.user_id = users_definitions.user_id
                 INNER JOIN lexical_category ON lexical_category.category_id = definitions.category_id
                 INNER JOIN words ON words.word_id = definitions.word_id
-                INNER JOIN examples ON examples.definition_id = definitions.definition_id
+                LEFT JOIN examples ON examples.definition_id = definitions.definition_id
                 WHERE users.user_id = (?)
                 ORDER BY learned DESC,  date DESC, words.word DESC''', (user_id,))
 
@@ -423,7 +423,7 @@ def get_words_unlearned():
                     INNER JOIN users ON  users.user_id = users_definitions.user_id
                     INNER JOIN lexical_category ON lexical_category.category_id = definitions.category_id
                     INNER JOIN words ON words.word_id = definitions.word_id
-                    INNER JOIN examples ON examples.definition_id = definitions.definition_id
+                    LEFT JOIN examples ON examples.definition_id = definitions.definition_id
                     WHERE users.user_id = (?) AND learned IS NULL
                     ORDER BY learned DESC,  date DESC, words.word DESC''', (user_id, ))
 
@@ -472,3 +472,14 @@ def save_test_result():
             con.commit()
             response = make_response(jsonify({'message':'Results saved properly'}), 200)
             return response
+
+
+@app.route("/get_user_session")
+def user_session():
+    user_id = session.get("user_id")
+    if user_id != None:
+        user = 'logged'
+    else:
+        user = user_id
+    status = jsonify({'status': user})
+    return status

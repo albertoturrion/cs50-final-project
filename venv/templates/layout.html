@@ -19,6 +19,22 @@
     {% endblock %}
 </head>
 <body>
+    <div class="popup-wrapper container">
+        <div class="popup-header">
+            <p>Log-in to save words!</p>
+            <span class="material-icons">close</span>
+        </div>
+        <div class="popup-body login-section">
+            <form action="/login" method="POST">
+                <input type="email" name="email" placeholder="Email address" class="form-control">
+                <input type="password" name="password" placeholder="Password" class="form-control">
+                <input type="submit" value="LOGIN" class="button button-small btn-gold">
+                <a href="#" class="form-link">Did you forget your password?</a>
+            </form>
+            <p class="or-option">OR</p>
+            <a href="/register" class="button button-small btn-white">CREATE AN ACCOUNT</a>
+        </div>
+    </div>
     <header>
     <nav class="navbar navbar-expand-lg navbar-dark"> 
         <div class="container-fluid">

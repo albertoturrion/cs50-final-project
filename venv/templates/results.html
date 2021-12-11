@@ -30,7 +30,7 @@
             {% if lemma['lemma'] != word %}
             <div class="callout results_lemmas">
                 <h3>It is possible you are also interested on 
-                    <a href="">{{ lemma['lemma']|title }}
+                    <a href="/dictionary?word={{ lemma['lemma'] }}">{{ lemma['lemma']|title }}
                         <span>- {{ lemma['lexicalCategory'] }} -</span>
                     </a>
                 </h3>
