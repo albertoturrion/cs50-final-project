@@ -132,15 +132,14 @@ p.flash {
 .modal-top {
     display: flex;
     flex-direction: row-reverse;
-    position: fixed;
+    position: relative;
     width: 100%;
-    top: 0;
-    left: 0;
     padding: 8px;
-    background-color: #ffff50;
+    background-color: #ffe38f;
 }
 
 .modal-top p {
+    flex-grow: 1;
     margin-bottom: 0;
     padding: 0 8px 8px 8px;
 }

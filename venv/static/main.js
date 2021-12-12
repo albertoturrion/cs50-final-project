@@ -115,27 +115,16 @@ async function save_word(word_data)
         headers: {"content-type": "application/json"}
     };
 
-    fetch(`${window.origin}/save-word`, init)
-        // .then((response) => {
-        //     if(response.status !== 200)
-        //     {
-        //         console.log(`There was a problem saving the word. Status code: ${response.status}`);
-        //         return;
-        //     }
-        //     response.json().then(data => {console.log(data)});
-        // })
-        // .catch(error => console.log(`Fetch error: ${error}`))
-
-        const response = await fetch(`${window.origin}/save-word`, init);
-        if (response.status == 200)
-        {
-            const data = await response.json()
-            return response;
-        }
-        else
-        {
-            return 'There was an error saving the word'
-        }
+    const response = await fetch(`${window.origin}/save-word`, init);
+    if (response.status == 200)
+    {
+        const data = await response.json()
+        return response;
+    }
+    else
+    {
+        return 'There was an error saving the word'
+    }
 }
 
 async function get_words_unlearned()
@@ -154,6 +143,11 @@ async function show_test() {
     // we only create the ids_unlearned the first time we load the page, after that we'll shift one by one their elements
     if (first_word == true){
         ids_unlearned = Object.keys(words)
+        if (ids_unlearned.length === 0 )
+        {
+            show_top_modal("You don't have any word to learn.")
+            return;
+        }
         ids_words['unlearned'] = ids_unlearned
     }
     console.log("show_words - ids_words created", ids_words)
@@ -313,10 +307,10 @@ function show_top_modal(information)
     modal.append(modal_close)
     modal.setAttribute('class', 'modal-top')
     const message = document.createElement('p')
-    const body = document.querySelector('body')
+    const header = document.querySelector('header')
     message.textContent = information
     modal.append(message)
-    body.append(modal)
+    header.append(modal)
 
     // Modal-top close
     // const close_modal = document.querySelector(".modal-top span")

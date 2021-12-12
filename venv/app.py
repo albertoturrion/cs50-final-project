@@ -136,7 +136,7 @@ def register():
 
             # We need the id of the user to store it in de session
             cur.execute("SELECT user_id FROM users WHERE email_address = ?", (email, ))
-            new_user_id = cur.fetchone()
+            new_user_id = cur.fetchone()[0]
             print(new_user_id)
             session["user_id"] = new_user_id
 
@@ -153,7 +153,8 @@ def logout():
 
 @app.route("/user-progress")
 def user_progress():
-    user_id = session.get("user_id", None)
+    user_id = session.get("user_id")
+    print(user_id)
     # collecting every definitions saved for the user
     with sqlite3.connect("users.db") as con:
         cur = con.cursor()
@@ -174,7 +175,6 @@ def user_progress():
         # if the user has words learned we should saved them into the progress dictionary
         if dates_learned != None:
             for date in dates_learned:
-                print(date[0])
                 # definition should be a date time object (it is stored as a string)
                 date_learned = datetime.datetime.strptime(date[0], "%d-%m-%Y")
                 # delta will be the difference between days (today and each date)
@@ -187,7 +187,9 @@ def user_progress():
             progress['total'] = len(dates_learned)
 
         if user_has_words == None:
-            definition_saved = {}
+            definitions_saved = None
+            return render_template("user_progress.html", definitions=definitions_saved, progress=progress)
+
         else:
             cur.execute(
                 '''SELECT name, definitions.definition_id, word, category, definition , example, date, learned
@@ -226,9 +228,7 @@ def user_progress():
                     }
             
             print(definitions_saved)
-            
-
-    return render_template("user_progress.html", definitions=definitions_saved, progress=progress)
+            return render_template("user_progress.html", definitions=definitions_saved, progress=progress)
 
 @app.route("/navbar")
 def navbar():

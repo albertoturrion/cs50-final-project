@@ -24,26 +24,28 @@
         </tbody>
     </table>
 
-    <div class="words-not-learned">
-    <h2>Words to learn</h2>
-    <p>Here you can find your words pending to learn:</p>
-    {% for definition_id in definitions %}
-        {% if definitions[definition_id]['learned'] == None %}
-        <div class="list_definition-box">
-            <h3 class="list_lexical-entry">{{ definitions[definition_id]['word'] }}<span>({{ definitions[definition_id]['category'] }})</span></h3>
-            <p class="list_date not-learned"><span class="material-icons-outlined">highlight_off</span>Not learned</p>
-            <p class="list_definition">{{ definitions[definition_id]['definition'] }}</p>
-            <ul> 
-                {% for example in definitions[definition_id]['example'] %}
-                    {% if example is not none %}
-                    <li class="list_example">{{ example }}</li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
+    {% if definitions is not none %}
+        <div class="words-not-learned">
+            <h2>Words to learn</h2>
+            <p>Here you can find your words pending to learn:</p>
+            {% for definition_id in definitions %}
+                {% if definitions[definition_id]['learned'] == None %}
+                <div class="list_definition-box">
+                    <h3 class="list_lexical-entry">{{ definitions[definition_id]['word'] }}<span>({{ definitions[definition_id]['category'] }})</span></h3>
+                    <p class="list_date not-learned"><span class="material-icons-outlined">highlight_off</span>Not learned</p>
+                    <p class="list_definition">{{ definitions[definition_id]['definition'] }}</p>
+                    <ul> 
+                        {% for example in definitions[definition_id]['example'] %}
+                            {% if example is not none %}
+                            <li class="list_example">{{ example }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            {% endfor %}
         </div>
-        {% endif %}
-    {% endfor %}
-    </div>
+    {% endif %}
 
     </section>
 
