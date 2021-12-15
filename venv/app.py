@@ -325,8 +325,8 @@ def search_word():
         if not isinstance(lemmas, list):
             flash(lemmas)
             return redirect(url_for("index"))
-        if data == 'error':
-            flash(f'The word {word} has not been found')
+        if not isinstance(data,list):
+            flash(data)
             return redirect(url_for("index"))
         counter = 0
         return render_template('results.html', word=word, data=data, lemmas=lemmas, counter = counter)
@@ -384,6 +384,7 @@ def your_list():
             #     examples : []
             # }
         }
+        
 
         for i in words:
             if i['definition_id'] in definitions_saved:
@@ -399,9 +400,22 @@ def your_list():
                 }
         
         print(definitions_saved)
+
+        number_of_words_learned = {
+            'learned': 0,
+            'unlearned': 0
+        }
+        # create a variable to know if there is at least one word to learn
+
+        for id in definitions_saved:
+            if definitions_saved[id]['learned'] != None:
+                number_of_words_learned['learned'] += 1
+            else:
+                number_of_words_learned['unlearned'] += 1
+
         
 
-    return render_template("words_list.html", definitions=definitions_saved)
+    return render_template("words_list.html", definitions=definitions_saved, learned_counter=number_of_words_learned)
 
 
 @app.route("/test")

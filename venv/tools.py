@@ -17,70 +17,71 @@ def api_data(word):
     baseEntriesURL = "https://od-api.oxforddictionaries.com/api/v2/entries/en-us/"
     # Now, we add the word searched by the user
     entriesURL = baseEntriesURL + word.lower()
+    base_word = word
 
-    try:
-        # Making the request
-        r = requests.get(entriesURL, headers={"app_id": app_id, "app_key": app_key})
-        if r.status_code == 200:
-            # Turning response into json format
-            response = r.json()
-            # We should access to "results" array, it contains "id" and "lexicalEntries"
-            results = response["results"][0]
-            # To get the definitions, we should enter to lexicalEntries, an array of dictionaries with 
-            # some information about the different lexical categories of the word searched
-            # For instance, grant as a noun (one dict) and as a verb (another dict)
-            lexicalEntries = results["lexicalEntries"]
-            # We'll save each entry of word within a dictionary (word) and each entry within an array (words) 
-            # It is possible that exists more than one entry (grant as a verb and as a noun). Each of them (and their data)
-            # will be in a dictionary
-            words = []
-            lexicalCategory = []
-            for word in lexicalEntries:
-                # In each entry it will be saved the information of each entry: category, definitions and examples
-                # senseinformation contains the different definitions of the same lexical category and their examples
-                # Each definition can have one or more examples, but there always will be the same number of elements in each array
-                # However, within the examples, one element can contain severeal examples as an array
-                entry = {
-                'lexicalCategory': None,
-                'senseInformation': {
-                    "definitions": [],
-                    "examples": []
-                }
-                }
-                # Saving the lexical category
-                entry["lexicalCategory"] = (word["lexicalCategory"]["text"])
-                # we should access to "entries" to have access to definitions and examples
-                entries = word["entries"]
-                # each entry (verb or noun) can have more than one sense (with its definitions, pronunciations...)
-                senseInformation = {
-                    "definitions": [],
-                    "examples": []
-                }
-                for i in entries:
-                    senses = i['senses']
-                    for sense in senses:
+    # Making the request
+    r = requests.get(entriesURL, headers={"app_id": app_id, "app_key": app_key})
+    if r.status_code == 200:
+        # Turning response into json format
+        response = r.json()
+        # We should access to "results" array, it contains "id" and "lexicalEntries"
+        results = response["results"][0]
+        # To get the definitions, we should enter to lexicalEntries, an array of dictionaries with 
+        # some information about the different lexical categories of the word searched
+        # For instance, grant as a noun (one dict) and as a verb (another dict)
+        lexicalEntries = results["lexicalEntries"]
+        # We'll save each entry of word within a dictionary (word) and each entry within an array (words) 
+        # It is possible that exists more than one entry (grant as a verb and as a noun). Each of them (and their data)
+        # will be in a dictionary
+        words = []
+        lexicalCategory = []
+        for word in lexicalEntries:
+            # In each entry it will be saved the information of each entry: category, definitions and examples
+            # senseinformation contains the different definitions of the same lexical category and their examples
+            # Each definition can have one or more examples, but there always will be the same number of elements in each array
+            # However, within the examples, one element can contain severeal examples as an array
+            entry = {
+            'lexicalCategory': None,
+            'senseInformation': {
+                "definitions": [],
+                "examples": []
+            }
+            }
+            # Saving the lexical category
+            entry["lexicalCategory"] = (word["lexicalCategory"]["text"])
+            # we should access to "entries" to have access to definitions and examples
+            entries = word["entries"]
+            # each entry (verb or noun) can have more than one sense (with its definitions, pronunciations...)
+            senseInformation = {
+                "definitions": [],
+                "examples": []
+            }
+            for i in entries:
+                senses = i['senses']
+                for sense in senses:
+                    try:
                         senseInformation["definitions"].append(sense["definitions"][0])
-                        # It's possible that some definition doesn't have examples, so we need to manage the exception
-                        try: 
-                            examples = sense["examples"]
-                            # It's needed to add every examples of one definition in one array to know what examples was assigned to the definition
-                            # they can be one or more than one
-                            wordExamples = []
-                            for example in examples:
-                                wordExamples.append(example['text'])
-                            senseInformation["examples"].append(wordExamples)
-                        except:
-                            senseInformation["examples"].append(['None'])
-                    # we save the information of the entry (verb or noun) with all its definitions and examples
-                    entry['senseInformation'] = senseInformation
-                    # adding the entry to word, it can have more than one entry
-                    words.append(entry)
-            return words
-        else:
-            # if it doesn't return 200 status code and it's not catched as an error
-            return ('error')
-    except AssertionError as error:
-        print(error)
+                    except:
+                        return f"Sorry, we don't have the word {base_word} in our dictionary"
+                    # It's possible that some definition doesn't have examples, so we need to manage the exception
+                    try: 
+                        examples = sense["examples"]
+                        # It's needed to add every examples of one definition in one array to know what examples was assigned to the definition
+                        # they can be one or more than one
+                        wordExamples = []
+                        for example in examples:
+                            wordExamples.append(example['text'])
+                        senseInformation["examples"].append(wordExamples)
+                    except:
+                        senseInformation["examples"].append(['None'])
+                # we save the information of the entry (verb or noun) with all its definitions and examples
+                entry['senseInformation'] = senseInformation
+                # adding the entry to word, it can have more than one entry
+                words.append(entry)
+        return words
+    else:
+        # if it doesn't return 200 status code and it's not catched as an error
+        return (f'Sorry, the word {base_word} has not been found')
 
 
 # this function return a dictionary with the different lemmas of the word searched

@@ -190,6 +190,7 @@ async function show_test() {
                 console.log("Test finished")
                 console.log("ids_words", ids_words);
                 send_test_result (ids_words)
+                window.location.assign("/your-list");
             }
         }
         else {
@@ -221,7 +222,7 @@ async function show_test() {
             console.log("Test finished")
             console.log("ids_words", ids_words);
             send_test_result (ids_words)
-            window.location.replace("/your-list")
+            window.location.assign("/your-list");
         }
     });
     
@@ -256,7 +257,9 @@ function load_definition(id, words) {
         examples.forEach(example => {
             example_item = document.createElement("li")
             example_item.setAttribute("class", "test_example")
+            console.log(examples)
             example_item.innerText = example.replace(words[id]["word"],"_".repeat(words[id]["word"].length))
+            console.log(example_item.innerText)
             div_examples.appendChild(example_item)
         })
     }
