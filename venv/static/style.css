@@ -270,9 +270,13 @@ footer p {
 
 /* LOGIN page */
 
-.login-section input[type="email"] {
+.login-section input[type="email"], input[type="password"] {
     margin-bottom: 8px;
 }
+
+
+
+
 
 .login-section .form-link {
     display: block;

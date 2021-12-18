@@ -76,7 +76,7 @@ def login():
             cur = con.cursor()
             cur.execute("SELECT * FROM users WHERE email_address = ?", (email, ))
             db_user = cur.fetchone()
-            if len(db_user) == 0:
+            if db_user == None:
                 flash("The email provided doesn't exist")
                 return redirect(url_for("login"))
             if not password:
@@ -100,7 +100,7 @@ def register():
     else:
         name = request.form['name']
         if not name:
-            flash('Plase, fill your name when you register')
+            flash('Please, enter your name')
             return render_template('register.html')
         
         email = request.form['email']
@@ -142,6 +142,49 @@ def register():
 
             flash(f"You have been successfully signed up as {name}")
             return redirect(url_for("user_progress"))
+
+
+@app.route("/change-password", methods=['GET', 'POST'])
+def change_password():
+    if request.method == 'GET':
+        return render_template('change-password.html')
+    else:
+        user_email = request.form['email']
+        old_password = request.form['old-password']
+        new_password = request.form['new-password']
+        new_password_confirmation = request.form['new-password-confirmation']
+        # first checks before requesting information to the database
+        if not user_email:
+            flash('Please, enter your email address')
+            return redirect(url_for("change_password"))
+        if not old_password:
+            flash('Please, enter your current password')
+            return redirect(url_for("change_password"))
+        if not new_password or not new_password_confirmation:
+            flash('Please, enter the new password (and new password confirmation)')
+            return redirect(url_for("change_password"))
+        if new_password != new_password_confirmation:
+            flash('New password and password confirmation must match')
+            return redirect(url_for("change_password"))
+        
+        with sqlite3.connect('users.db') as con:
+            cur = con.cursor()
+            # checking if the password provided by the user match the password in the database
+            cur.execute("SELECT password FROM users WHERE email_address = (?)", (user_email,))
+            password_hash = cur.fetchone()
+            if password_hash == None:
+                flash('Email invalid. Please, try again')
+                return redirect(url_for("change_password"))
+            else:
+                password_hash = password_hash[0]
+            if not check_password_hash(password_hash, old_password):
+                flash("Password entered is not correct")
+                return redirect(url_for("change_password"))
+            else:
+                cur.execute("UPDATE users SET password = (?) WHERE email_address = (?)", (generate_password_hash(new_password), user_email))
+                con.commit()
+                flash("You have change your password successfully!")
+                return redirect(url_for("index"))
 
 
 @app.route("/logout")

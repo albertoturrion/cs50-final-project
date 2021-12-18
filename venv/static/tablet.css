@@ -1,6 +1,52 @@
 
 /* Home page */
-.button {
+
+.button:not(.nav-link) {
+    margin: 10px auto;
     max-width: 300px;
+}
+
+.navbar-nav.me-auto.mb-2.mb-lg-0 {
     margin: 0 auto;
+    justify-content: center;
+    align-items: center;
+    max-width: 400px;
+}
+
+.search-logout {
+    width: 400px;
+    margin: 5px auto;
+}
+
+form[action="/dictionary"] {
+    margin-top: 6px;
+}
+
+/* Sign up and sign in pages */
+form[action="/login"],
+form[action="/register"] {
+    max-width: 400px;
+}
+
+.modal-top {
+    text-align: center;
+}
+
+/* Results page */
+
+.popup-wrapper.container {
+    max-width: 400px;
+}
+
+/* User progress page */
+
+table {
+    max-width: 500px;
+    margin: 0 auto 20px auto;
+}
+
+/* Test page */
+
+.test.container {
+    max-width: 478px;
 }

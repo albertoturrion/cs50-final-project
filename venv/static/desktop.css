@@ -1,6 +1,11 @@
+:root {
+    --primary-color: #191F75;
+    --secondary-color: #C8B400;
+}
+
 .container, 
 .container-fluid {
-    max-width: 978px;
+    max-width: 1024px;
 }
 
 h1, h2, h3 {
@@ -24,10 +29,36 @@ p, li {
     line-height: 2;
 }
 
+#navbarSupportedContent > ul > li > a:hover {
+    background-color: white;
+    color: black;
+}
+
 nav .navbar-nav a.button.btn-white[href="/login"],
 nav .navbar-nav a.button.btn-white[href="/sign-up"] {
     width: auto;
 }
+
+a.button.button-small.btn-white[href="/logout"]{
+    max-width: 100px;
+    margin: 0 0 0 10px;
+}
+
+form[action="/dictionary"]{
+    margin-top: 0;
+}
+
+.search-logout {
+    width: inherit;
+    margin: inherit;
+}
+
+.button {
+    margin: 10px auto;
+    max-width: 300px;
+}
+
+
 
 /* Home page */
 
@@ -73,3 +104,48 @@ nav .navbar-nav a.button.btn-white.btn-navbar[href="/logout"] {
 .logout p{
     display: inline-block;
 }
+
+/* Results page */
+li.list_example, li.results_example
+li.test_example {
+    font-size: 1.3rem;
+}
+
+/* Sign up and sign in pages */
+
+form[action="/login"] {
+    margin: 0 auto;
+}
+
+form[action="/register"] {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+}
+
+form[action="/register"] {
+    grid-template-columns: repeat(2, 300px);
+    grid-gap: 8px;
+    max-width: inherit;
+}
+
+form[action="/register"] > input[type="submit"]
+{
+    grid-column: 1 / 3;
+}
+
+form[action="/change-password"] {
+    display: grid;
+    grid-template-columns: repeat(2, 50%);
+    grid-gap: 10px;
+}
+
+form[action="/change-password"] > input[type="submit"] {
+    grid-column: 1 / 3;
+}
+
+.register-section > *,
+.login-section > * {
+    text-align: center;
+}
+

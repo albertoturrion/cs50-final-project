@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
     <script src="../static/main.js"></script>
     <link rel="stylesheet" href="static/style.css">
+    <link media="screen and (min-width: 478px)" rel="stylesheet" href="static/tablet.css">
     <link rel="stylesheet" media="screen and (min-device-width: 992px)" href="static/desktop.css">
     <title>{% block title %}{% endblock %}</title>
     {% block head %}
@@ -59,6 +60,9 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{{ url_for('test') }}">Test</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('change_password') }}">Change Password</a>
+                    </li>
                     {% endif %}
                 </ul>
                 {% if not session.user_id %}
@@ -73,10 +77,10 @@
                         <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
                     {% if session.user_id %}
-                    <div class="logout">
-                        <p>You are logged as {{session.name}} </p>
+                    <!-- <p> {{session.name}} </p> -->
+                    <!-- <div class="logout"> -->
                         <a href="/logout" class="nav-link active me-2 button button-small btn-white" aria-current="page">LOGOUT</a>
-                    </div>
+                    <!-- </div> -->
                     {% endif %}
                 </div>
             </div>
