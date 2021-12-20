@@ -389,7 +389,7 @@ def your_list():
         user_has_words = cur.fetchone()
         if user_has_words == None:
             flash("You don't have any word saved!")
-            return redirect(url_for("index"))
+            return redirect(url_for("user_progress"))
 
         cur.execute(
             '''SELECT name, definitions.definition_id, word, category, definition , example, date, learned
@@ -525,7 +525,6 @@ def save_test_result():
             # changing the words unlearned to learned
             for learned_id in test_results['learned']:
                 cur.execute("UPDATE users_definitions SET learned = (?) WHERE definition_id = (?) AND user_id = (?)",(today, learned_id, user_id))
-
             con.commit()
             response = make_response(jsonify({'message':'Results saved properly'}), 200)
             return response

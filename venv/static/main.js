@@ -180,8 +180,8 @@ async function show_test() {
             }
             else
             {
-                send_test_result (ids_words)
-                window.location.assign("/your-list");
+                results_response = send_test_result(ids_words)
+                // window.location.assign("/your-list");
             }
         }
         else {
@@ -210,7 +210,7 @@ async function show_test() {
         else 
         {
             send_test_result (ids_words);
-            window.location.assign("/your-list");
+            // window.location.assign("/your-list");
         }
     });
     
@@ -271,9 +271,13 @@ function send_test_result (final_result)
         headers:{
             'Content-Type': 'application/json'
         }
-    }).then(res => res.json())
+    }).then(response => {
+        if (response.status == 200) 
+        {
+            window.location.assign("/your-list");
+        }
+    })
     .catch(error => console.error('Error:', error))
-    .then(response => console.log('Success:', response))
 }
 
 async function get_user_status() 
