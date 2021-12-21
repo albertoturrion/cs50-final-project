@@ -34,7 +34,7 @@ Mac: `python3 -m venv venv` Windows: `py -3 -m venv venv`
 
 ##### Activate virtual environment
 In the folder which contains the venv file:
-Mac: `source venv/bin/activate` Windows: `venv\Scripts\activate`
+Mac: `source venv/bin/activate` Windows (Bash): `source venv\Scripts\activate`
 
 ##### Install modules
 Make sure virtual enviroment is activated
@@ -42,7 +42,10 @@ Make sure virtual enviroment is activated
 
 ##### Export variables
 You can get your Oxford Dictionaries API credentials signing up on [Oxford Dictionaries API plans](https://developer.oxforddictionaries.com/?tag=#plans)
-`export FLASK_APP=englishInmersion/app.py app_id={{ your app_id }} app_key={{ your app_key }} FLASK_ENV=development`
+`export FLASK_APP=englishInmersion/app.py`
+`export app_id={{ your app_id }}` 
+'export app_key={{ your app_key }}` 
+`export FLASK_ENV=development`
 
 ##### Finally, run the project
 `flask run`
