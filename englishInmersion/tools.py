@@ -1,12 +1,11 @@
+import datetime
 import json
 import os
-import requests
 import re
 from functools import wraps
-from flask import redirect, render_template, request, session, url_for, flash
-import datetime
 
-
+import requests
+from flask import flash, redirect, render_template, request, session, url_for
 
 app_id = os.getenv('app_id')
 app_key = os.getenv('app_key')

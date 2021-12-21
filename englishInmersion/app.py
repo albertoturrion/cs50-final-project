@@ -1,15 +1,16 @@
-from flask import Flask, flash, redirect, render_template, request, url_for, session, jsonify, make_response
-from flask_session import Session
-from tables import delete_tables, seed_tables, create_tables
-from tempfile import mkdtemp
-from tools import api_data, check_email, get_lemmas, login_required, get_today_formatted
-from werkzeug.security import check_password_hash, generate_password_hash
+import datetime
 import json
 import os
-import requests
 import sqlite3
-import datetime
+from tempfile import mkdtemp
 
+import requests
+from flask import (Flask, flash, jsonify, make_response, redirect, render_template, request, session, url_for)
+from flask_session import Session
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from tables import create_tables, delete_tables, seed_tables
+from tools import (api_data, check_email, get_lemmas, get_today_formatted, login_required)
 
 app = Flask(__name__)
 app_id = os.environ['app_id']

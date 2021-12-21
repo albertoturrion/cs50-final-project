@@ -23,4 +23,32 @@ The website is made with Flask (Python microframework), sqlite3 for database and
     - seed_tables()
 
 
+#### Setting up the environment
+##### Clone the folder
+`git clone https://github.com/albertoturrion/cs50-final-project.git`
+
+Out of the ***englishInmersion*** folder:
+
+##### Create the enviroment
+Mac: `python3 -m venv venv` Windows: `py -3 -m venv venv`
+
+##### Activate virtual environment
+In the folder which contains the venv file:
+Mac: `source venv/bin/activate` Windows: `venv\Scripts\activate`
+
+##### Install modules
+Make sure virtual enviroment is activated
+`pip install -r requirements.txt`
+
+##### Export variables
+You can get your Oxford Dictionaries API credentials signing up on [Oxford Dictionaries API plans](https://developer.oxforddictionaries.com/?tag=#plans)
+`export FLASK_APP=englishInmersion/app.py app_id={{ your app_id }} app_key={{ your app_key }} FLASK_ENV=development`
+
+##### Finally, run the project
+`flask run`
+
+##### Deactivate virtual environment
+`deactivate`
+
+
 
