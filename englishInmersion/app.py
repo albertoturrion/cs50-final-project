@@ -38,11 +38,13 @@ con = sqlite3.connect('users.db')
 # creating a cursor to manipulate the model (database)
 cur = con.cursor()
 
+# making tables
+create_tables(cur)
+
 seeding = False
 
 if seeding == True:
     delete_tables(cur)
-    create_tables(cur)
     seed_tables(cur)
 
 # Saving changes on database
